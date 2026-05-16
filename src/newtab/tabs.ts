@@ -4,6 +4,9 @@ export type TabInfo = {
   url: string
   favIconUrl?: string
   windowId: number
+  audible: boolean
+  pinned: boolean
+  active: boolean
 }
 
 export type GroupMode = 'none' | 'window' | 'domain'
@@ -14,6 +17,22 @@ export type TabGroup = {
   tabs: TabInfo[]
 }
 
+export type Filters = {
+  query: string
+  currentWindowOnly: boolean
+  audibleOnly: boolean
+  pinnedOnly: boolean
+  duplicatesOnly: boolean
+}
+
+export const EMPTY_FILTERS: Filters = {
+  query: '',
+  currentWindowOnly: false,
+  audibleOnly: false,
+  pinnedOnly: false,
+  duplicatesOnly: false,
+}
+
 export function hostnameOf(url: string): string {
   try {
     const u = new URL(url)
@@ -21,6 +40,36 @@ export function hostnameOf(url: string): string {
   } catch {
     return '(other)'
   }
+}
+
+export function filterTabs(
+  tabs: TabInfo[],
+  filters: Filters,
+  currentWindowId: number | null,
+): TabInfo[] {
+  let result = tabs
+
+  if (filters.currentWindowOnly && currentWindowId !== null) {
+    result = result.filter((t) => t.windowId === currentWindowId)
+  }
+  if (filters.audibleOnly) result = result.filter((t) => t.audible)
+  if (filters.pinnedOnly) result = result.filter((t) => t.pinned)
+
+  if (filters.duplicatesOnly) {
+    const counts = new Map<string, number>()
+    for (const t of result) counts.set(t.url, (counts.get(t.url) ?? 0) + 1)
+    result = result.filter((t) => (counts.get(t.url) ?? 0) > 1)
+  }
+
+  const q = filters.query.trim().toLowerCase()
+  if (q) {
+    result = result.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) || t.url.toLowerCase().includes(q),
+    )
+  }
+
+  return result
 }
 
 export function groupTabs(
