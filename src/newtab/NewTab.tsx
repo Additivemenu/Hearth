@@ -4,7 +4,7 @@ import { TabsList } from './TabsList'
 export function NewTab() {
   return (
     <div className="relative min-h-full">
-      <main className="relative mx-auto flex max-w-3xl flex-col gap-8 px-6 py-14">
+      <main className="relative mx-auto flex max-w-7xl flex-col gap-8 px-6 py-14">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-rose-400 text-brand-fg shadow-brand-glow">

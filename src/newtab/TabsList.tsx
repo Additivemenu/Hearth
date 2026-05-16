@@ -10,8 +10,8 @@ import {
 import {
   SortableContext,
   arrayMove,
+  horizontalListSortingStrategy,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useEffect, useMemo } from 'react'
 import { useTabsStore } from '../store/tabsStore'
@@ -19,6 +19,7 @@ import { FilterBar } from './FilterBar'
 import { GroupModeToggle } from './GroupModeToggle'
 import { SearchBar } from './SearchBar'
 import { TabGroupSection } from './TabGroupSection'
+import { TabRow } from './TabRow'
 import { applyOrder, filterTabs, groupTabs } from './tabs'
 
 export function TabsList() {
@@ -66,7 +67,6 @@ export function TabsList() {
   }
 
   const isFiltered = filtered.length !== tabs.length
-  const showHeader = mode !== 'none'
 
   return (
     <div className="flex flex-col gap-5">
@@ -91,6 +91,12 @@ export function TabsList() {
             ? 'No tabs open.'
             : 'No tabs match the current filter.'}
         </p>
+      ) : mode === 'none' ? (
+        <ul className="divide-y divide-muted overflow-hidden rounded-xl border border-line/70 bg-surface/70">
+          {groups[0].tabs.map((tab) => (
+            <TabRow key={tab.id} tab={tab} />
+          ))}
+        </ul>
       ) : (
         <DndContext
           sensors={sensors}
@@ -99,15 +105,11 @@ export function TabsList() {
         >
           <SortableContext
             items={groups.map((g) => g.key)}
-            strategy={verticalListSortingStrategy}
+            strategy={horizontalListSortingStrategy}
           >
-            <div className="flex flex-col gap-4">
+            <div className="-mx-2 flex items-start gap-4 overflow-x-auto px-2 pb-3">
               {groups.map((group) => (
-                <TabGroupSection
-                  key={group.key}
-                  group={group}
-                  showHeader={showHeader}
-                />
+                <TabGroupSection key={group.key} group={group} />
               ))}
             </div>
           </SortableContext>
