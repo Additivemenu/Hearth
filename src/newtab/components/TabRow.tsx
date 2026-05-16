@@ -1,6 +1,27 @@
+import confetti from 'canvas-confetti'
 import { CornerDownRight, Pin, Volume2, X } from 'lucide-react'
 import { useTabsStore } from '../../store/tabsStore'
 import { hostnameOf, type TabInfo } from '../tabs'
+
+const REWARD_COLORS = ['#f97316', '#fb7185', '#fcd34d', '#f472b6']
+
+function burstReward(button: HTMLElement) {
+  const rect = button.getBoundingClientRect()
+  confetti({
+    particleCount: 24,
+    spread: 55,
+    startVelocity: 25,
+    gravity: 0.9,
+    ticks: 90,
+    scalar: 0.75,
+    origin: {
+      x: (rect.left + rect.width / 2) / window.innerWidth,
+      y: (rect.top + rect.height / 2) / window.innerHeight,
+    },
+    colors: REWARD_COLORS,
+    disableForReducedMotion: true,
+  })
+}
 
 type Props = {
   tab: TabInfo
@@ -65,9 +86,12 @@ export function TabRow({ tab, depth = 0 }: Props) {
       </div>
 
       <button
-        onClick={() => close(tab)}
+        onClick={(e) => {
+          burstReward(e.currentTarget)
+          void close(tab)
+        }}
         aria-label="Close tab"
-        className="shrink-0 rounded-md p-1 text-fg-subtle opacity-0 transition-all hover:bg-brand-soft hover:text-brand-soft-fg group-hover/row:opacity-100 focus:opacity-100"
+        className="shrink-0 rounded-md p-1 text-fg-subtle opacity-0 transition-all hover:bg-brand-soft hover:text-brand-soft-fg group-hover/row:opacity-100 focus:opacity-100 active:scale-90"
       >
         <X className="h-3.5 w-3.5" />
       </button>
