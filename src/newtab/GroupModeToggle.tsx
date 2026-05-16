@@ -12,7 +12,7 @@ export function GroupModeToggle() {
   const setMode = useTabsStore((s) => s.setMode)
 
   return (
-    <div className="inline-flex rounded-lg border border-stone-200 bg-stone-100/70 p-0.5">
+    <div className="inline-flex rounded-lg border border-line bg-muted/70 p-0.5">
       {MODES.map((m) => {
         const active = mode === m.value
         return (
@@ -22,8 +22,8 @@ export function GroupModeToggle() {
             className={
               'rounded-md px-2.5 py-1 text-xs transition-all ' +
               (active
-                ? 'bg-white text-stone-800 shadow-sm'
-                : 'text-stone-500 hover:text-stone-800')
+                ? 'bg-surface text-fg shadow-sm'
+                : 'text-fg-muted hover:text-fg')
             }
           >
             {m.label}

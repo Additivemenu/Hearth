@@ -11,10 +11,10 @@ export function TabRow({ tab }: Props) {
   const close = useTabsStore((s) => s.close)
 
   return (
-    <li className="group/row relative flex items-center gap-3 px-3 py-2 transition-colors hover:bg-orange-50/70">
+    <li className="group/row relative flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-hover/70">
       {tab.active && (
         <span
-          className="absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-r bg-orange-500"
+          className="absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-r bg-brand"
           aria-hidden
         />
       )}
@@ -23,7 +23,7 @@ export function TabRow({ tab }: Props) {
         {tab.favIconUrl ? (
           <img src={tab.favIconUrl} alt="" className="h-4 w-4 rounded-sm" />
         ) : (
-          <span className="block h-4 w-4 rounded-sm bg-stone-200" />
+          <span className="block h-4 w-4 rounded-sm bg-line" />
         )}
       </div>
 
@@ -32,27 +32,25 @@ export function TabRow({ tab }: Props) {
         className="min-w-0 flex-1 text-left"
         title={tab.url}
       >
-        <span className="block truncate text-sm text-stone-800 group-hover/row:text-stone-900">
-          {tab.title}
-        </span>
-        <span className="block truncate text-[11px] text-stone-500">
+        <span className="block truncate text-sm text-fg">{tab.title}</span>
+        <span className="block truncate text-[11px] text-fg-muted">
           {hostnameOf(tab.url)}
         </span>
       </button>
 
-      <div className="flex shrink-0 items-center gap-1.5 text-stone-400">
+      <div className="flex shrink-0 items-center gap-1.5 text-fg-subtle">
         {tab.audible && (
-          <Volume2 className="h-3.5 w-3.5 text-orange-500" aria-label="Audible" />
+          <Volume2 className="h-3.5 w-3.5 text-brand" aria-label="Audible" />
         )}
         {tab.pinned && (
-          <Pin className="h-3.5 w-3.5 text-orange-500" aria-label="Pinned" />
+          <Pin className="h-3.5 w-3.5 text-brand" aria-label="Pinned" />
         )}
       </div>
 
       <button
         onClick={() => close(tab)}
         aria-label="Close tab"
-        className="shrink-0 rounded-md p-1 text-stone-400 opacity-0 transition-all hover:bg-orange-100 hover:text-orange-700 group-hover/row:opacity-100 focus:opacity-100"
+        className="shrink-0 rounded-md p-1 text-fg-subtle opacity-0 transition-all hover:bg-brand-soft hover:text-brand-soft-fg group-hover/row:opacity-100 focus:opacity-100"
       >
         <X className="h-3.5 w-3.5" />
       </button>
