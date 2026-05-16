@@ -1,10 +1,25 @@
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { useEffect, useMemo } from 'react'
 import { useTabsStore } from '../store/tabsStore'
 import { FilterBar } from './FilterBar'
 import { GroupModeToggle } from './GroupModeToggle'
 import { SearchBar } from './SearchBar'
 import { TabGroupSection } from './TabGroupSection'
-import { filterTabs, groupTabs } from './tabs'
+import { applyOrder, filterTabs, groupTabs } from './tabs'
 
 export function TabsList() {
   const loadTabs = useTabsStore((s) => s.loadTabs)
@@ -14,6 +29,8 @@ export function TabsList() {
   const filters = useTabsStore((s) => s.filters)
   const currentWindowId = useTabsStore((s) => s.currentWindowId)
   const mode = useTabsStore((s) => s.mode)
+  const groupOrder = useTabsStore((s) => s.groupOrder)
+  const setGroupOrder = useTabsStore((s) => s.setGroupOrder)
 
   useEffect(() => {
     void loadTabs()
@@ -25,9 +42,28 @@ export function TabsList() {
     [tabs, filters, currentWindowId],
   )
   const groups = useMemo(
-    () => groupTabs(filtered, mode, currentWindowId),
-    [filtered, mode, currentWindowId],
+    () =>
+      applyOrder(
+        groupTabs(filtered, mode, currentWindowId),
+        groupOrder[mode],
+      ),
+    [filtered, mode, currentWindowId, groupOrder],
   )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const keys = groups.map((g) => g.key)
+    const oldIndex = keys.indexOf(active.id as string)
+    const newIndex = keys.indexOf(over.id as string)
+    if (oldIndex < 0 || newIndex < 0) return
+    setGroupOrder(mode, arrayMove(keys, oldIndex, newIndex))
+  }
 
   const isFiltered = filtered.length !== tabs.length
   const showHeader = mode !== 'none'
@@ -56,15 +92,26 @@ export function TabsList() {
             : 'No tabs match the current filter.'}
         </p>
       ) : (
-        <div className="flex flex-col gap-4">
-          {groups.map((group) => (
-            <TabGroupSection
-              key={group.key}
-              group={group}
-              showHeader={showHeader}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={groups.map((g) => g.key)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex flex-col gap-4">
+              {groups.map((group) => (
+                <TabGroupSection
+                  key={group.key}
+                  group={group}
+                  showHeader={showHeader}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   )

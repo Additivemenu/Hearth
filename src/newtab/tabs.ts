@@ -72,6 +72,21 @@ export function filterTabs(
   return result
 }
 
+export function applyOrder(groups: TabGroup[], order: string[]): TabGroup[] {
+  if (order.length === 0) return groups
+  const remaining = new Map(groups.map((g) => [g.key, g]))
+  const result: TabGroup[] = []
+  for (const key of order) {
+    const g = remaining.get(key)
+    if (g) {
+      result.push(g)
+      remaining.delete(key)
+    }
+  }
+  for (const g of remaining.values()) result.push(g)
+  return result
+}
+
 export function groupTabs(
   tabs: TabInfo[],
   mode: GroupMode,

@@ -12,6 +12,7 @@ type TabsState = {
   mode: GroupMode
   filters: Filters
   collapsed: Set<string>
+  groupOrder: Record<GroupMode, string[]>
 
   loadTabs: () => Promise<void>
   subscribeToChromeEvents: () => () => void
@@ -21,9 +22,16 @@ type TabsState = {
   togglePill: (key: keyof Omit<Filters, 'query'>) => void
   resetFilters: () => void
   toggleCollapsed: (key: string) => void
+  setGroupOrder: (mode: GroupMode, keys: string[]) => void
 
   activate: (tab: TabInfo) => Promise<void>
   close: (tab: TabInfo) => Promise<void>
+}
+
+const EMPTY_GROUP_ORDER: Record<GroupMode, string[]> = {
+  none: [],
+  window: [],
+  domain: [],
 }
 
 export const useTabsStore = create<TabsState>((set, get) => ({
@@ -32,6 +40,7 @@ export const useTabsStore = create<TabsState>((set, get) => ({
   mode: 'window',
   filters: EMPTY_FILTERS,
   collapsed: new Set(),
+  groupOrder: EMPTY_GROUP_ORDER,
 
   loadTabs: async () => {
     const [all, currentWindow] = await Promise.all([
@@ -79,6 +88,8 @@ export const useTabsStore = create<TabsState>((set, get) => ({
       else next.add(key)
       return { collapsed: next }
     }),
+  setGroupOrder: (mode, keys) =>
+    set((s) => ({ groupOrder: { ...s.groupOrder, [mode]: keys } })),
 
   activate: async (tab) => {
     await chrome.tabs.update(tab.id, { active: true })
