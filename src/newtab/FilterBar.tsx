@@ -36,8 +36,8 @@ export function FilterBar() {
             className={
               'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-all ' +
               (active
-                ? 'border-amber-400/40 bg-amber-400/10 text-amber-200 shadow-[0_0_0_1px_rgba(251,191,36,0.15)]'
-                : 'border-white/5 bg-neutral-900/40 text-neutral-400 hover:border-white/10 hover:bg-neutral-900/80 hover:text-neutral-200')
+                ? 'border-orange-300 bg-orange-100 text-orange-700 shadow-[0_1px_0_rgba(255,255,255,0.6)_inset]'
+                : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-800')
             }
           >
             <Icon className="h-3.5 w-3.5" aria-hidden />
@@ -48,7 +48,7 @@ export function FilterBar() {
       {anyActive && (
         <button
           onClick={resetFilters}
-          className="ml-1 text-xs text-neutral-500 transition-colors hover:text-neutral-200"
+          className="ml-1 text-xs text-stone-500 transition-colors hover:text-orange-600"
         >
           Reset
         </button>

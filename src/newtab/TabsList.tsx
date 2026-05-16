@@ -43,14 +43,14 @@ export function TabsList() {
         </div>
       </div>
 
-      <div className="text-xs text-neutral-500">
+      <div className="text-xs text-stone-500">
         {isFiltered
           ? `${filtered.length} of ${tabs.length} tabs`
           : `${tabs.length} tabs open`}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-white/5 px-4 py-8 text-center text-sm text-neutral-500">
+        <p className="rounded-xl border border-dashed border-stone-200 bg-white/40 px-4 py-8 text-center text-sm text-stone-500">
           {tabs.length === 0
             ? 'No tabs open.'
             : 'No tabs match the current filter.'}

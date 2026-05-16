@@ -18,7 +18,7 @@ export function TabGroupSection({ group, showHeader }: Props) {
       {showHeader && (
         <button
           onClick={() => toggleCollapsed(group.key)}
-          className="group/header mb-1.5 flex w-full items-center gap-2 text-left text-[11px] font-medium uppercase tracking-wider text-neutral-500 transition-colors hover:text-neutral-200"
+          className="mb-1.5 flex w-full items-center gap-2 text-left text-[11px] font-medium uppercase tracking-wider text-stone-500 transition-colors hover:text-stone-800"
         >
           <ChevronRight
             className={
@@ -28,12 +28,12 @@ export function TabGroupSection({ group, showHeader }: Props) {
             aria-hidden
           />
           <span>{group.label}</span>
-          <span className="text-neutral-600">·</span>
-          <span className="text-neutral-500">{group.tabs.length}</span>
+          <span className="text-stone-300">·</span>
+          <span className="text-stone-500">{group.tabs.length}</span>
         </button>
       )}
       {!isCollapsed && (
-        <ul className="divide-y divide-white/[0.04] overflow-hidden rounded-lg border border-white/[0.04] bg-neutral-900/40">
+        <ul className="divide-y divide-stone-100 overflow-hidden rounded-xl border border-stone-200/70 bg-white/70">
           {group.tabs.map((tab) => (
             <TabRow key={tab.id} tab={tab} />
           ))}
