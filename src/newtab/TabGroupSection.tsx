@@ -64,7 +64,11 @@ export function TabGroupSection({ group }: Props) {
       {!isCollapsed && (
         <ul className="divide-y divide-muted">
           {group.tabs.map((tab) => (
-            <TabRow key={tab.id} tab={tab} />
+            <TabRow
+              key={tab.id}
+              tab={tab}
+              depth={group.depths?.get(tab.id) ?? 0}
+            />
           ))}
         </ul>
       )}

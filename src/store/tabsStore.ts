@@ -14,6 +14,10 @@ type TabsState = {
   filters: Filters
   collapsed: Set<string>
   groupOrder: Record<GroupMode, string[]>
+  // childTabId -> parentTabId. Captured at creation time so the relationship
+  // survives the parent closing (Chrome clears `openerTabId` in that case).
+  // Session-scoped: tab IDs don't survive a browser restart, so neither does this.
+  openerMap: Map<number, number>
 
   loadTabs: () => Promise<void>
   subscribeToChromeEvents: () => () => void
@@ -33,6 +37,7 @@ const EMPTY_GROUP_ORDER: Record<GroupMode, string[]> = {
   none: [],
   window: [],
   domain: [],
+  tree: [],
 }
 
 export const useTabsStore = create<TabsState>()(
@@ -43,6 +48,7 @@ export const useTabsStore = create<TabsState>()(
     filters: EMPTY_FILTERS,
     collapsed: new Set(),
     groupOrder: EMPTY_GROUP_ORDER,
+    openerMap: new Map(),
 
     loadTabs: async () => {
       const [all, currentWindow] = await Promise.all([
@@ -62,21 +68,60 @@ export const useTabsStore = create<TabsState>()(
           audible: t.audible ?? false,
           pinned: t.pinned,
           active: t.active,
+          openerTabId: t.openerTabId,
         }))
-      set({ tabs, currentWindowId: currentWindow.id ?? null })
+
+      set((s) => {
+        // Seed openerMap from Chrome's current openerTabId for tabs we
+        // haven't already captured. This way, tabs that existed before the
+        // extension was active still get a parent recorded (as long as Chrome
+        // still knows it).
+        const nextOpener = new Map(s.openerMap)
+        for (const tab of tabs) {
+          if (tab.openerTabId !== undefined && !nextOpener.has(tab.id)) {
+            nextOpener.set(tab.id, tab.openerTabId)
+          }
+        }
+        return {
+          tabs,
+          currentWindowId: currentWindow.id ?? null,
+          openerMap: nextOpener,
+        }
+      })
     },
 
     subscribeToChromeEvents: () => {
-      const onChange = () => {
+      const reload = () => {
         void get().loadTabs()
       }
-      chrome.tabs.onCreated.addListener(onChange)
-      chrome.tabs.onRemoved.addListener(onChange)
-      chrome.tabs.onUpdated.addListener(onChange)
+      const onCreated = (tab: chrome.tabs.Tab) => {
+        if (tab.id !== undefined && tab.openerTabId !== undefined) {
+          const childId = tab.id
+          const parentId = tab.openerTabId
+          set((s) => {
+            const next = new Map(s.openerMap)
+            next.set(childId, parentId)
+            return { openerMap: next }
+          })
+        }
+        reload()
+      }
+      const onRemoved = (tabId: number) => {
+        set((s) => {
+          if (!s.openerMap.has(tabId)) return s
+          const next = new Map(s.openerMap)
+          next.delete(tabId)
+          return { openerMap: next }
+        })
+        reload()
+      }
+      chrome.tabs.onCreated.addListener(onCreated)
+      chrome.tabs.onRemoved.addListener(onRemoved)
+      chrome.tabs.onUpdated.addListener(reload)
       return () => {
-        chrome.tabs.onCreated.removeListener(onChange)
-        chrome.tabs.onRemoved.removeListener(onChange)
-        chrome.tabs.onUpdated.removeListener(onChange)
+        chrome.tabs.onCreated.removeListener(onCreated)
+        chrome.tabs.onRemoved.removeListener(onRemoved)
+        chrome.tabs.onUpdated.removeListener(reload)
       }
     },
 

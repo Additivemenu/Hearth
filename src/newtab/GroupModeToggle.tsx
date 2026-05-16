@@ -5,6 +5,7 @@ const MODES: { value: GroupMode; label: string }[] = [
   { value: 'none', label: 'List' },
   { value: 'window', label: 'Window' },
   { value: 'domain', label: 'Domain' },
+  { value: 'tree', label: 'Tree' },
 ]
 
 export function GroupModeToggle() {

@@ -1,20 +1,37 @@
-import { Pin, Volume2, X } from 'lucide-react'
+import { CornerDownRight, Pin, Volume2, X } from 'lucide-react'
 import { useTabsStore } from '../store/tabsStore'
 import { hostnameOf, type TabInfo } from './tabs'
 
 type Props = {
   tab: TabInfo
+  depth?: number
 }
 
-export function TabRow({ tab }: Props) {
+const INDENT_PX = 16
+const BASE_PX = 12
+
+export function TabRow({ tab, depth = 0 }: Props) {
   const activate = useTabsStore((s) => s.activate)
   const close = useTabsStore((s) => s.close)
 
+  const indentStyle =
+    depth > 0 ? { paddingLeft: BASE_PX + depth * INDENT_PX } : undefined
+
   return (
-    <li className="group/row relative flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-hover/70">
+    <li
+      className="group/row relative flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-hover/70"
+      style={indentStyle}
+    >
       {tab.active && (
         <span
           className="absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-r bg-brand"
+          aria-hidden
+        />
+      )}
+
+      {depth > 0 && (
+        <CornerDownRight
+          className="h-3 w-3 shrink-0 text-fg-subtle/60"
           aria-hidden
         />
       )}

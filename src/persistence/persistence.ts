@@ -20,9 +20,17 @@ export async function initPersistence(): Promise<void> {
   initialized = true
 
   try {
-    const stored = await apiClient.get<StoredGroupOrder>(PREFS, KEY_GROUP_ORDER)
+    const stored = await apiClient.get<Partial<StoredGroupOrder>>(
+      PREFS,
+      KEY_GROUP_ORDER,
+    )
     if (stored) {
-      useTabsStore.setState({ groupOrder: stored })
+      // Merge — never replace. Stored data may be from an older schema (e.g.
+      // missing a newly-added GroupMode key). Defaults from initial state fill
+      // any gaps.
+      useTabsStore.setState((s) => ({
+        groupOrder: { ...s.groupOrder, ...stored },
+      }))
     }
   } catch (err) {
     console.warn('[hearth] failed to hydrate preferences', err)

@@ -32,6 +32,7 @@ export function TabsList() {
   const mode = useTabsStore((s) => s.mode)
   const groupOrder = useTabsStore((s) => s.groupOrder)
   const setGroupOrder = useTabsStore((s) => s.setGroupOrder)
+  const openerMap = useTabsStore((s) => s.openerMap)
 
   useEffect(() => {
     void loadTabs()
@@ -45,10 +46,10 @@ export function TabsList() {
   const groups = useMemo(
     () =>
       applyOrder(
-        groupTabs(filtered, mode, currentWindowId),
+        groupTabs(filtered, mode, currentWindowId, openerMap),
         groupOrder[mode],
       ),
-    [filtered, mode, currentWindowId, groupOrder],
+    [filtered, mode, currentWindowId, openerMap, groupOrder],
   )
 
   const sensors = useSensors(
