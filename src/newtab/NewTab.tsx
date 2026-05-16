@@ -1,5 +1,5 @@
 import { Flame } from 'lucide-react'
-import { TabsList } from './TabsList'
+import { Dashboard } from './Dashboard'
 
 export function NewTab() {
   return (
@@ -20,7 +20,7 @@ export function NewTab() {
         </header>
 
         <section className="rounded-3xl border border-line/70 bg-surface/75 p-6 shadow-card backdrop-blur-md">
-          <TabsList />
+          <Dashboard />
         </section>
       </main>
     </div>

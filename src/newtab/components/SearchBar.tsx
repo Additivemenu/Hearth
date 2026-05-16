@@ -1,5 +1,5 @@
 import { Search, X } from 'lucide-react'
-import { useTabsStore } from '../store/tabsStore'
+import { useTabsStore } from '../../store/tabsStore'
 
 export function SearchBar() {
   const query = useTabsStore((s) => s.filters.query)

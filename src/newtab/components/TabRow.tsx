@@ -1,6 +1,6 @@
 import { CornerDownRight, Pin, Volume2, X } from 'lucide-react'
-import { useTabsStore } from '../store/tabsStore'
-import { hostnameOf, type TabInfo } from './tabs'
+import { useTabsStore } from '../../store/tabsStore'
+import { hostnameOf, type TabInfo } from '../tabs'
 
 type Props = {
   tab: TabInfo

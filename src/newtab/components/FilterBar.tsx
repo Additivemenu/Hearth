@@ -5,8 +5,8 @@ import {
   Volume2,
   type LucideIcon,
 } from 'lucide-react'
-import { useTabsStore } from '../store/tabsStore'
-import type { Filters } from './tabs'
+import { useTabsStore } from '../../store/tabsStore'
+import type { Filters } from '../tabs'
 
 type PillKey = keyof Omit<Filters, 'query'>
 

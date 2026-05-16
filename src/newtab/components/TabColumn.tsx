@@ -1,15 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { ChevronDown, GripVertical } from 'lucide-react'
-import { useTabsStore } from '../store/tabsStore'
+import { useTabsStore } from '../../store/tabsStore'
+import type { TabGroup } from '../tabs'
 import { TabRow } from './TabRow'
-import type { TabGroup } from './tabs'
 
 type Props = {
   group: TabGroup
 }
 
-export function TabGroupSection({ group }: Props) {
+export function TabColumn({ group }: Props) {
   const collapsedSet = useTabsStore((s) => s.collapsed)
   const toggleCollapsed = useTabsStore((s) => s.toggleCollapsed)
   const isCollapsed = collapsedSet.has(group.key)

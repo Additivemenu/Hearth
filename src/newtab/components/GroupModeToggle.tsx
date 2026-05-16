@@ -1,5 +1,5 @@
-import { useTabsStore } from '../store/tabsStore'
-import type { GroupMode } from './tabs'
+import { useTabsStore } from '../../store/tabsStore'
+import type { GroupMode } from '../tabs'
 
 const MODES: { value: GroupMode; label: string }[] = [
   { value: 'none', label: 'List' },
