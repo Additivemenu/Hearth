@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
 import {
   EMPTY_FILTERS,
   type Filters,
@@ -34,68 +35,72 @@ const EMPTY_GROUP_ORDER: Record<GroupMode, string[]> = {
   domain: [],
 }
 
-export const useTabsStore = create<TabsState>((set, get) => ({
-  tabs: [],
-  currentWindowId: null,
-  mode: 'window',
-  filters: EMPTY_FILTERS,
-  collapsed: new Set(),
-  groupOrder: EMPTY_GROUP_ORDER,
+export const useTabsStore = create<TabsState>()(
+  subscribeWithSelector((set, get) => ({
+    tabs: [],
+    currentWindowId: null,
+    mode: 'window',
+    filters: EMPTY_FILTERS,
+    collapsed: new Set(),
+    groupOrder: EMPTY_GROUP_ORDER,
 
-  loadTabs: async () => {
-    const [all, currentWindow] = await Promise.all([
-      chrome.tabs.query({}),
-      chrome.windows.getCurrent(),
-    ])
-    const tabs: TabInfo[] = all
-      .filter((t): t is chrome.tabs.Tab & { id: number } => t.id !== undefined)
-      .map((t) => ({
-        id: t.id,
-        title: t.title ?? t.url ?? '(untitled)',
-        url: t.url ?? '',
-        favIconUrl: t.favIconUrl,
-        windowId: t.windowId,
-        audible: t.audible ?? false,
-        pinned: t.pinned,
-        active: t.active,
-      }))
-    set({ tabs, currentWindowId: currentWindow.id ?? null })
-  },
+    loadTabs: async () => {
+      const [all, currentWindow] = await Promise.all([
+        chrome.tabs.query({}),
+        chrome.windows.getCurrent(),
+      ])
+      const tabs: TabInfo[] = all
+        .filter(
+          (t): t is chrome.tabs.Tab & { id: number } => t.id !== undefined,
+        )
+        .map((t) => ({
+          id: t.id,
+          title: t.title ?? t.url ?? '(untitled)',
+          url: t.url ?? '',
+          favIconUrl: t.favIconUrl,
+          windowId: t.windowId,
+          audible: t.audible ?? false,
+          pinned: t.pinned,
+          active: t.active,
+        }))
+      set({ tabs, currentWindowId: currentWindow.id ?? null })
+    },
 
-  subscribeToChromeEvents: () => {
-    const onChange = () => {
-      void get().loadTabs()
-    }
-    chrome.tabs.onCreated.addListener(onChange)
-    chrome.tabs.onRemoved.addListener(onChange)
-    chrome.tabs.onUpdated.addListener(onChange)
-    return () => {
-      chrome.tabs.onCreated.removeListener(onChange)
-      chrome.tabs.onRemoved.removeListener(onChange)
-      chrome.tabs.onUpdated.removeListener(onChange)
-    }
-  },
+    subscribeToChromeEvents: () => {
+      const onChange = () => {
+        void get().loadTabs()
+      }
+      chrome.tabs.onCreated.addListener(onChange)
+      chrome.tabs.onRemoved.addListener(onChange)
+      chrome.tabs.onUpdated.addListener(onChange)
+      return () => {
+        chrome.tabs.onCreated.removeListener(onChange)
+        chrome.tabs.onRemoved.removeListener(onChange)
+        chrome.tabs.onUpdated.removeListener(onChange)
+      }
+    },
 
-  setMode: (mode) => set({ mode }),
-  setQuery: (query) => set((s) => ({ filters: { ...s.filters, query } })),
-  togglePill: (key) =>
-    set((s) => ({ filters: { ...s.filters, [key]: !s.filters[key] } })),
-  resetFilters: () => set({ filters: EMPTY_FILTERS }),
-  toggleCollapsed: (key) =>
-    set((s) => {
-      const next = new Set(s.collapsed)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return { collapsed: next }
-    }),
-  setGroupOrder: (mode, keys) =>
-    set((s) => ({ groupOrder: { ...s.groupOrder, [mode]: keys } })),
+    setMode: (mode) => set({ mode }),
+    setQuery: (query) => set((s) => ({ filters: { ...s.filters, query } })),
+    togglePill: (key) =>
+      set((s) => ({ filters: { ...s.filters, [key]: !s.filters[key] } })),
+    resetFilters: () => set({ filters: EMPTY_FILTERS }),
+    toggleCollapsed: (key) =>
+      set((s) => {
+        const next = new Set(s.collapsed)
+        if (next.has(key)) next.delete(key)
+        else next.add(key)
+        return { collapsed: next }
+      }),
+    setGroupOrder: (mode, keys) =>
+      set((s) => ({ groupOrder: { ...s.groupOrder, [mode]: keys } })),
 
-  activate: async (tab) => {
-    await chrome.tabs.update(tab.id, { active: true })
-    await chrome.windows.update(tab.windowId, { focused: true })
-  },
-  close: async (tab) => {
-    await chrome.tabs.remove(tab.id)
-  },
-}))
+    activate: async (tab) => {
+      await chrome.tabs.update(tab.id, { active: true })
+      await chrome.windows.update(tab.windowId, { focused: true })
+    },
+    close: async (tab) => {
+      await chrome.tabs.remove(tab.id)
+    },
+  })),
+)
